@@ -90,6 +90,10 @@ struct Array4dComplex {
     data: [[[[Simple; 2]; 3]; 5]; 7],
 }
 
+#[repr(transparent)]
+#[derive(RegMap, Default)]
+struct SomeBitField(u32);
+
 #[test]
 fn simple() {
     let mut regs = Simple {

@@ -40,12 +40,56 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
         let ptr_name = Ident::new(&format!("{}Ptr", name), Span::call_site());
         let mod_name = Ident::new(&format!("_mod_{}", name), Span::call_site());
         let mut all_methods = quote!();
-        if let Fields::Named(named) = fields {
-            for field in named.named.iter() {
-                all_methods.extend(parse_field(field)?);
+        match fields {
+            Fields::Named(named) => {
+                for field in named.named.iter() {
+                    all_methods.extend(parse_field(field)?);
+                }
             }
-        } else {
-            bail!(ast, "RegMap derive supports only structs with named fields");
+            Fields::Unnamed(fields_unnamed) => {
+                if fields_unnamed.unnamed.len() != 1 {
+                    bail!(ast, "RegMap derive does not support tuple structs with multiple fields");
+                }
+                let field = &fields_unnamed.unnamed[0];
+                //ensure it's an integer
+                match &field.ty {
+                    Type::Path(type_path) => {
+                        let ident = &type_path.path.segments[0].ident;
+                        if !is_integer(ident) {
+                            bail!(
+                                field,
+                                "RegMap derive supports only tuple structs with a single integer field"
+                            );
+                        }
+                    }
+                    _ => bail!(
+                        field,
+                        "RegMap derive supports only tuple structs with a single integer field"
+                    ),
+                }
+
+                all_methods.extend(quote!(
+                    #[inline]
+                    pub fn read(&self) -> #name
+                    {
+                        let val = unsafe { self.ptr.read_volatile() };
+
+                        #[cfg(feature = "debug-trace")]
+                        std::eprintln!("REG-MAP READ  {:p} {:?}", self.ptr, val);
+
+                        val
+                    }
+                    #[inline]
+                    pub fn write(&self, val: #name)
+                    {
+                        unsafe { self.ptr.write_volatile(val) };
+
+                        #[cfg(feature = "debug-trace")]
+                        std::eprintln!("REG-MAP READ  {:p} {:?}", self.ptr, val);
+                    }
+                ));
+            },
+            Fields::Unit => bail!(ast, "RegMap derive does not support unit structs"),
         }
         let doc_msg_top = format!("A pointer to the register map `{name}`.");
         let doc_msg_from_nonnull = format!(
@@ -214,6 +258,7 @@ impl quote::ToTokens for RegAccess {
 
 fn check_repr(input: &DeriveInput) -> Result<()> {
     let mut repr_c = false;
+    let mut repr_transparent = false;
     let mut repr_align = None::<usize>;
 
     for attr in &input.attrs {
@@ -227,8 +272,8 @@ fn check_repr(input: &DeriveInput) -> Result<()> {
 
                 // #[repr(transparent)]
                 if meta.path.is_ident("transparent") {
-                    // TODO: this is possibly OK, investigate...
-                    return Err(meta.error("RegMap derive does not support #[repr(transparent)]"));
+                    repr_transparent = true;
+                    return Ok(());
                 }
 
                 // #[repr(align(N))]
@@ -251,10 +296,10 @@ fn check_repr(input: &DeriveInput) -> Result<()> {
         }
     }
 
-    if repr_c {
+    if repr_c || repr_transparent {
         Ok(())
     } else {
-        bail!("RegMap derive requires #[repr(C)]")
+        bail!("RegMap derive requires #[repr(C)] or #[repr(transparent)] on the struct")
     }
 }
 

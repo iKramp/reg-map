@@ -57,7 +57,7 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                 }
 
                 //ensure it's an integer
-                match &field.ty {
+                match data_type {
                     Type::Path(type_path) => {
                         let ident = &type_path.path.segments[0].ident;
                         if !is_integer(ident) {
@@ -67,10 +67,10 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                             );
                         }
                     }
-                                        Type::Paren(_) => bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (paren)"
-                    ),
+                    Type::Paren(_) => bail!(
+                                            field,
+                                            "RegMap derive supports only tuple structs with a single integer field (paren)"
+                                        ),
                     Type::Array(type_array) =>              bail!(
                         field,
                         "RegMap derive supports only tuple structs with a single integer field (array)"
@@ -123,7 +123,7 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                         field,
                         "RegMap derive supports only tuple structs with a single integer field (verbatim)"
                     ),
-                    &_ => {}
+                    _ => todo!(),
                 }
 
                 all_methods.extend(quote!(

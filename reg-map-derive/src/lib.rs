@@ -51,6 +51,11 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                     bail!(ast, "RegMap derive does not support tuple structs with multiple fields");
                 }
                 let field = &fields_unnamed.unnamed[0];
+                let mut data_type = field.ty.clone();
+                while let Type::Group(type_group) = data_type {
+                    data_type = (*type_group.elem).clone();
+                }
+
                 //ensure it's an integer
                 match &field.ty {
                     Type::Path(type_path) => {
@@ -62,63 +67,10 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                             );
                         }
                     }
-                    Type::Paren(_) => bail!(
+                    _ => bail!(
                         field,
-                        "RegMap derive supports only tuple structs with a single integer field (paren)"
+                        "RegMap derive supports only tuple structs with a single integer field"
                     ),
-                    Type::Array(type_array) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (array)"
-                    ),
-                    Type::BareFn(type_bare_fn) =>           bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (bare fn)"
-                    ),
-                    Type::Group(type_group) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (group)"
-                    ),
-                    Type::ImplTrait(type_impl_trait) =>     bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (impl trait)"
-                    ),
-                    Type::Infer(type_infer) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (inferred)"
-                    ),
-                    Type::Macro(type_macro) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (macro)"
-                    ),
-                    Type::Never(type_never) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (never)"
-                    ),
-                    Type::Ptr(type_ptr) =>                  bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (pointer)"
-                    ),
-                    Type::Reference(type_reference) =>      bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (reference)"
-                    ),
-                    Type::Slice(type_slice) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (slice)"
-                    ),
-                    Type::TraitObject(type_trait_object) => bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (trait object)"
-                    ),
-                    Type::Tuple(type_tuple) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (tuple)"
-                    ),
-                    Type::Verbatim(token_stream) =>         bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (verbatim)"
-                    ),
-                    &_ => {}
                 }
 
                 all_methods.extend(quote!(

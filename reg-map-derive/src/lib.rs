@@ -63,66 +63,10 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                         if !is_integer(ident) {
                             bail!(
                                 field,
-                                "RegMap derive supports only tuple structs with a single integer field (not int)"
+                                "RegMap derive supports only tuple structs with a single integer field"
                             );
                         }
                     }
-                    Type::Paren(_) => bail!(
-                                            field,
-                                            "RegMap derive supports only tuple structs with a single integer field (paren)"
-                                        ),
-                    Type::Array(type_array) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (array)"
-                    ),
-                    Type::BareFn(type_bare_fn) =>           bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (bare fn)"
-                    ),
-                    Type::Group(type_group) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (group)"
-                    ),
-                    Type::ImplTrait(type_impl_trait) =>     bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (impl trait)"
-                    ),
-                    Type::Infer(type_infer) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (inferred)"
-                    ),
-                    Type::Macro(type_macro) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (macro)"
-                    ),
-                    Type::Never(type_never) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (never)"
-                    ),
-                    Type::Ptr(type_ptr) =>                  bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (pointer)"
-                    ),
-                    Type::Reference(type_reference) =>      bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (reference)"
-                    ),
-                    Type::Slice(type_slice) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (slice)"
-                    ),
-                    Type::TraitObject(type_trait_object) => bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (trait object)"
-                    ),
-                    Type::Tuple(type_tuple) =>              bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (tuple)"
-                    ),
-                    Type::Verbatim(token_stream) =>         bail!(
-                        field,
-                        "RegMap derive supports only tuple structs with a single integer field (verbatim)"
-                    ),
                     _ => todo!(),
                 }
 
@@ -131,19 +75,12 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                     pub fn read(&self) -> #name
                     {
                         let val = unsafe { self.ptr.read_volatile() };
-
-                        #[cfg(feature = "debug-trace")]
-                        std::eprintln!("REG-MAP READ  {:p} {:?}", self.ptr, val);
-
                         val
                     }
                     #[inline]
                     pub fn write(&self, val: #name)
                     {
                         unsafe { self.ptr.write_volatile(val) };
-
-                        #[cfg(feature = "debug-trace")]
-                        std::eprintln!("REG-MAP READ  {:p} {:?}", self.ptr, val);
                     }
                 ));
             },

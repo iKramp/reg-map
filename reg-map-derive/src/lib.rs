@@ -58,13 +58,13 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                         if !is_integer(ident) {
                             bail!(
                                 field,
-                                "RegMap derive supports only tuple structs with a single integer field"
+                                "RegMap derive supports only tuple structs with a single integer field (not int)"
                             );
                         }
                     }
                     _ => bail!(
                         field,
-                        "RegMap derive supports only tuple structs with a single integer field"
+                        "RegMap derive supports only tuple structs with a single integer field (idk?)"
                     ),
                 }
 

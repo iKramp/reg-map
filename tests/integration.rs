@@ -94,6 +94,10 @@ struct Array4dComplex {
 #[derive(RegMap, Default)]
 struct SomeBitField(u32);
 
+#[repr(transparent)]
+#[derive(RegMap, Default)]
+struct SomeOtherBitField(pub u32);
+
 #[test]
 fn simple() {
     let mut regs = Simple {

@@ -117,7 +117,8 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                     Type::Verbatim(token_stream) =>         bail!(
                         field,
                         "RegMap derive supports only tuple structs with a single integer field (verbatim)"
-                    )
+                    ),
+                    &_ => {}
                 }
 
                 all_methods.extend(quote!(

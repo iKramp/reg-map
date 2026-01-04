@@ -1,7 +1,6 @@
-# `reg-map`
+Fork to be compatible with my fork of bitfield, to allow bit fields on MMIO
 
-[![Crates.io Version](https://img.shields.io/crates/v/reg-map)](https://crates.io/crates/reg-map)
-[![docs.rs](https://img.shields.io/docsrs/reg-map)](https://docs.rs/reg-map)
+# `reg-map`
 
 Derive volatile accesses to a register map and memory-mapped IO.
 

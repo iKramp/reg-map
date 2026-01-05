@@ -98,6 +98,12 @@ struct SomeBitField(u32);
 #[derive(RegMap, Default)]
 struct SomeOtherBitField(pub u32);
 
+#[repr(C)]
+#[derive(RegMap)]
+pub(in crate) struct PubInStruct {
+    field: u64,
+}
+
 #[test]
 fn simple() {
     let mut regs = Simple {

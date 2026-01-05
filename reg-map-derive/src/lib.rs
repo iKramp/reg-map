@@ -182,10 +182,8 @@ fn parse_visibility(vis: &Visibility) -> Result<proc_macro2::TokenStream> {
         Visibility::Public(_) => quote!(pub),
         Visibility::Restricted(vis_restricted) => {
             if vis_restricted.in_token.is_some() {
-                bail!(
-                    vis,
-                    "RegMap derive does not support `pub(in ...)` visibilities"
-                );
+                let path = &vis_restricted.path;
+                quote!(pub(in #path))
             } else {
                 let path = &vis_restricted.path;
                 if path.is_ident("crate") {

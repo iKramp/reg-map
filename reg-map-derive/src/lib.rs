@@ -167,6 +167,13 @@ fn impl_reg(ast: &DeriveInput) -> Result<TokenStream> {
                         self.as_ptr()
                     }
                 }
+                impl <'a> ::core::fmt::Debug for #ptr_name<'a> {
+                    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                        f.debug_struct(stringify!(#ptr_name))
+                         .field("ptr", &self.ptr)
+                         .finish()
+                    }
+                }
             }
             #vis use #mod_name::#ptr_name;
         );
